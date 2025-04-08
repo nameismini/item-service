@@ -8,6 +8,7 @@ import org.springframework.boot.Banner;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
@@ -37,7 +38,7 @@ public class BasicItemController {
         return "basic/addForm";
     }
 
-//    @PostMapping("/add")
+    //    @PostMapping("/add")
     public String save(
             @RequestParam("itemName") String itemName,
             @RequestParam("price") int price,
@@ -55,7 +56,7 @@ public class BasicItemController {
         return "basic/item";
     }
 
-//    @PostMapping("/add")
+    //    @PostMapping("/add")
     public String addItemV1(@ModelAttribute("item") Item item, Model model) {
 
         itemRepository.save(item);
@@ -64,7 +65,7 @@ public class BasicItemController {
         return "basic/item";
     }
 
-//    @PostMapping("/add")
+    //    @PostMapping("/add")
     public String addItemV2(@ModelAttribute("item") Item item, Model model) {
 
         itemRepository.save(item);
@@ -73,18 +74,32 @@ public class BasicItemController {
         return "basic/item";
     }
 
-//    @PostMapping("/add")
+    //    @PostMapping("/add")
     public String addItemV3(@ModelAttribute Item item) {   //ModelAttribute 뒤에 이름과 Model model 도 생략가능
 
         itemRepository.save(item);
         return "basic/item";
     }
 
-    @PostMapping("/add")
+    //    @PostMapping("/add")
     public String addItemV4(Item item) {   //@ModelAttribute 명시또한 생략가능.. 하지만 가급적 표기하자...
 
         itemRepository.save(item);
         return "basic/item";
+    }
+
+//    @PostMapping("/add")
+    public String addItemV5(Item item) {   //@ModelAttribute 명시또한 생략가능.. 하지만 가급적 표기하자...
+        itemRepository.save(item);
+        return "redirect:/basic/items/" + item.getId();   // basic 앞에 / 붙이자
+    }
+
+    @PostMapping("/add")
+    public String addItemV6(Item item, RedirectAttributes redirectAttributes) {   //@ModelAttribute 명시또한 생략가능.. 하지만 가급적 표기하자...
+        Item saveItem = itemRepository.save(item);
+        redirectAttributes.addAttribute("itemId", saveItem.getId());
+        redirectAttributes.addAttribute("status", true);
+        return "redirect:/basic/items/{itemId}";
     }
 
     @GetMapping("{itemId}/edit")
@@ -92,6 +107,12 @@ public class BasicItemController {
         Item item = itemRepository.findById(itemId);
         model.addAttribute("item", item);
         return "basic/editForm";
+    }
+
+    @PostMapping("{itemId}/edit")
+    public String edit(@PathVariable("itemId") Long itemId, @ModelAttribute Item item) {
+        itemRepository.save(item);
+        return "redirect:/basic/items/{itemId}";
     }
 
     /**
